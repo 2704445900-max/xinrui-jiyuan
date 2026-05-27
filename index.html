@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新锐纪元企划</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="particles"></canvas>
+
+<nav>
+  <div class="logo">新锐纪元 · NEW ERA</div>
+  <ul>
+    <li><a href="#hero">首页</a></li>
+    <li><a href="#story">故事</a></li>
+    <li><a href="#world">世界观</a></li>
+    <li><a href="#characters">角色</a></li>
+    <li><a href="#villains">阴影</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="subtitle" id="hero-subtitle"></div>
+    <h1 id="hero-title"></h1>
+    <div class="declaration" id="hero-declaration"></div>
+  </div>
+  <div class="scroll-hint">↓ 向下滚动探索</div>
+</section>
+
+<section id="story">
+  <div class="section-title">故事缘起</div>
+  <div class="section-subtitle">来自作者的自述</div>
+  <div id="story-content" class="long-text"></div>
+</section>
+
+<section id="world">
+  <div class="section-title">三纪元世界观</div>
+  <div class="section-subtitle">拖动时间轴，或点击节点切换</div>
+  <div class="timeline-wrap">
+    <div class="timeline-track" id="timeline-track"></div>
+    <div class="timeline-line"></div>
+  </div>
+  <div class="era-content" id="era-content"></div>
+</section>
+
+<section id="characters">
+  <div class="section-title">林小队人物志</div>
+  <div class="section-subtitle">点击卡片查看完整档案</div>
+  <div class="characters-grid" id="characters-grid"></div>
+</section>
+
+<section id="villains">
+  <div class="section-title">暗影面</div>
+  <div class="section-subtitle">潜伏的敌人</div>
+  <div id="villains-content"></div>
+</section>
+
+<footer>© 新锐纪元企划 · 作者 和平莱茵兔 · <a href="admin.html" style="color:var(--text-dim)">管理入口</a></footer>
+
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-left">
+      <div class="portrait-large" id="modal-portrait"></div>
+      <div class="gallery-thumbs" id="gallery-thumbs"></div>
+    </div>
+    <div class="details" id="modal-details"></div>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>
