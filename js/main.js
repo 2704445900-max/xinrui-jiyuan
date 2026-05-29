@@ -23,8 +23,21 @@ const defaultData = {
   villains: [
     { name:"法特提", desc:"（反派组织描述待填写）" },
     { name:"影碟机构", desc:"（反派组织描述待填写）" }
-  ]
+  ],
+  videos: [
+    { bvid:"", title:"示例视频", desc:"在管理后台添加你的B站视频" }
+  ],
+  community: {
+    wechatQR: "",
+    qqQR: "",
+    qqNumber: "—",
+    wechatTitle: "支持众筹",
+    wechatDesc: "扫码支持新锐纪元企划",
+    qqTitle: "加入社群",
+    qqDesc: "一起探索新锐纪元的世界"
+  }
 };
+
 
 let data = JSON.parse(JSON.stringify(defaultData));
 
@@ -94,6 +107,77 @@ function renderVillains(){
   document.getElementById('villains-content').innerHTML = 
     data.villains.map(v=>`<div class="villain-card"><h3>${esc(v.name)}</h3><p>${esc(v.desc)}</p></div>`).join('');
 }
+
+function renderVideos(){
+  const player = document.getElementById('video-player');
+  const list = document.getElementById('video-list');
+  const videos = data.videos || [];
+  
+  if(videos.length === 0){
+    player.innerHTML = '<div class="video-empty">暂无视频，请在管理后台添加</div>';
+    list.innerHTML = '';
+    return;
+  }
+  
+  playVideo(0);
+  
+  list.innerHTML = videos.map((v,i)=>`
+    <div class="video-item ${i===0?'active':''}" onclick="playVideo(${i})">
+      <div class="video-thumb">
+        <div class="play-icon">▶</div>
+      </div>
+      <div class="video-info">
+        <div class="video-title">${esc(v.title)}</div>
+        <div class="video-desc">${esc(v.desc||'')}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function playVideo(i){
+  const v = data.videos[i];
+  if(!v) return;
+  const player = document.getElementById('video-player');
+  if(!v.bvid){
+    player.innerHTML = '<div class="video-empty">该视频未配置 BV 号</div>';
+    return;
+  }
+  player.innerHTML = `
+    <iframe 
+      src="//player.bilibili.com/player.html?bvid=${esc(v.bvid)}&high_quality=1&danmaku=0" 
+      scrolling="no" 
+      frameborder="no" 
+      framespacing="0" 
+      allowfullscreen="true">
+    </iframe>`;
+  document.querySelectorAll('.video-item').forEach((el,idx)=>{
+    el.classList.toggle('active', i===idx);
+  });
+}
+
+function renderCommunity(){
+  const c = data.community || {};
+  
+  document.getElementById('comm-wechat-title').textContent = c.wechatTitle || '支持众筹';
+  document.getElementById('comm-wechat-desc').textContent = c.wechatDesc || '扫码支持新锐纪元企划';
+  const wechatQR = document.getElementById('comm-wechat-qr');
+  if(c.wechatQR){
+    wechatQR.innerHTML = `<img src="${esc(c.wechatQR)}" alt="微信收款码">`;
+  } else {
+    wechatQR.innerHTML = '<div class="qr-hint">请在管理后台上传微信收款码</div>';
+  }
+  
+  document.getElementById('comm-qq-title').textContent = c.qqTitle || '加入社群';
+  document.getElementById('comm-qq-desc').textContent = c.qqDesc || '一起探索新锐纪元的世界';
+  document.getElementById('comm-qq-num').textContent = c.qqNumber || '—';
+  const qqQR = document.getElementById('comm-qq-qr');
+  if(c.qqQR){
+    qqQR.innerHTML = `<img src="${esc(c.qqQR)}" alt="QQ群二维码">`;
+  } else {
+    qqQR.innerHTML = '<div class="qr-hint">请在管理后台上传QQ群二维码</div>';
+  }
+}
+
 
 let currentChar = null;
 
@@ -245,6 +329,8 @@ async function bootstrap(){
   renderEras();
   renderCharacters();
   renderVillains();
+  renderVideos();
+  renderCommunity();
   initParticles();
   setupFadeIn();
 }

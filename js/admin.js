@@ -19,8 +19,19 @@ const defaultData = {
      tags:["冷静","理性","战术天才"],bio:"",quote:"我们的队伍向太阳。",images:[],
      radar:{"理性":90,"感性":60,"攻击":75,"防御":80,"团队":85,"指挥":95}}
   ],
-  villains:[{name:"法特提",desc:""},{name:"影碟机构",desc:""}]
+  villains:[{name:"法特提",desc:""},{name:"影碟机构",desc:""}],
+  videos:[{bvid:"",title:"示例视频",desc:"在管理后台添加你的B站视频"}],
+  community:{
+    wechatQR:"",
+    qqQR:"",
+    qqNumber:"",
+    wechatTitle:"支持众筹",
+    wechatDesc:"扫码支持新锐纪元企划",
+    qqTitle:"加入社群",
+    qqDesc:"一起探索新锐纪元的世界"
+  }
 };
+
 
 let data = JSON.parse(JSON.stringify(defaultData));
 
@@ -72,11 +83,21 @@ function renderAdmin(){
       <button class="btn btn-ghost" onclick="addCharacter()">+ 添加角色</button>
     </div>
 
-    <div class="admin-section"><h3>⑤ 反派 / 阴影</h3>
+       <div class="admin-section"><h3>⑤ 反派 / 阴影</h3>
       <div id="ed-villains"></div>
       <button class="btn btn-ghost" onclick="addVillain()">+ 添加反派</button>
+    </div>
+
+    <div class="admin-section"><h3>⑥ 企划视频</h3>
+      <div id="ed-videos"></div>
+      <button class="btn btn-ghost" onclick="addVideo()">+ 添加视频</button>
+    </div>
+
+    <div class="admin-section"><h3>⑦ 社群信息</h3>
+      <div id="ed-community"></div>
     </div>`;
-  renderEras(); renderChars(); renderVillains();
+  renderEras(); renderChars(); renderVillains(); renderVideos(); renderCommunity();
+
 }
 
 function renderEras(){
@@ -185,6 +206,65 @@ function renderVillains(){
 function addVillain(){ data.villains.push({name:"新反派",desc:""}); renderVillains(); }
 function removeVillain(i){ if(confirm('删除？')){ data.villains.splice(i,1); renderVillains(); } }
 function moveVillain(i,d){ const j=i+d; if(j<0||j>=data.villains.length) return; [data.villains[i],data.villains[j]]=[data.villains[j],data.villains[i]]; renderVillains(); }
+
+function renderVideos(){
+  if(!data.videos) data.videos = [];
+  document.getElementById('ed-videos').innerHTML = data.videos.map((v,i)=>`
+    <div class="edit-card">
+      <div class="edit-header"><strong>${esc(v.title||'视频')}</strong>
+        <div class="edit-actions">
+          <button class="btn btn-ghost" onclick="moveVideo(${i},-1)">↑</button>
+          <button class="btn btn-ghost" onclick="moveVideo(${i},1)">↓</button>
+          <button class="btn btn-danger" onclick="removeVideo(${i})">删除</button>
+        </div></div>
+      <div class="form-row"><label>标题</label><input value="${escAttr(v.title)}" oninput="data.videos[${i}].title=this.value"></div>
+      <div class="form-row"><label>B站 BV 号</label>
+        <input value="${escAttr(v.bvid)}" oninput="data.videos[${i}].bvid=this.value" placeholder="例如：BV1xx411c7mD">
+        <small>💡 打开B站视频，地址栏里 BV 开头的那串字符</small>
+      </div>
+      <div class="form-row"><label>简介</label><textarea oninput="data.videos[${i}].desc=this.value">${esc(v.desc)}</textarea></div>
+    </div>`).join('');
+}
+function addVideo(){ if(!data.videos) data.videos=[]; data.videos.push({bvid:"",title:"新视频",desc:""}); renderVideos(); }
+function removeVideo(i){ if(confirm('删除？')){ data.videos.splice(i,1); renderVideos(); } }
+function moveVideo(i,d){ const j=i+d; if(j<0||j>=data.videos.length) return; [data.videos[i],data.videos[j]]=[data.videos[j],data.videos[i]]; renderVideos(); }
+
+function renderCommunity(){
+  if(!data.community) data.community = {wechatQR:"",qqQR:"",qqNumber:"",wechatTitle:"支持众筹",wechatDesc:"",qqTitle:"加入社群",qqDesc:""};
+  const c = data.community;
+  document.getElementById('ed-community').innerHTML = `
+    <div class="edit-card">
+      <div class="edit-header"><strong>💰 微信支持</strong></div>
+      <div class="form-row"><label>标题</label><input value="${escAttr(c.wechatTitle)}" oninput="data.community.wechatTitle=this.value"></div>
+      <div class="form-row"><label>描述</label><input value="${escAttr(c.wechatDesc)}" oninput="data.community.wechatDesc=this.value"></div>
+      <div class="form-row"><label>收款码图片</label>
+        <input type="file" accept="image/*" onchange="uploadCommunityImage(event,'wechatQR')">
+        ${c.wechatQR?`<div class="thumb"><img src="${escAttr(c.wechatQR)}"><button onclick="data.community.wechatQR='';renderCommunity()">×</button></div>`:'<small>💡 上传微信收款码</small>'}
+      </div>
+    </div>
+    <div class="edit-card">
+      <div class="edit-header"><strong>💬 QQ 社群</strong></div>
+      <div class="form-row"><label>标题</label><input value="${escAttr(c.qqTitle)}" oninput="data.community.qqTitle=this.value"></div>
+      <div class="form-row"><label>描述</label><input value="${escAttr(c.qqDesc)}" oninput="data.community.qqDesc=this.value"></div>
+      <div class="form-row"><label>群号</label><input value="${escAttr(c.qqNumber)}" oninput="data.community.qqNumber=this.value" placeholder="例如：123456789"></div>
+      <div class="form-row"><label>群二维码图片</label>
+        <input type="file" accept="image/*" onchange="uploadCommunityImage(event,'qqQR')">
+        ${c.qqQR?`<div class="thumb"><img src="${escAttr(c.qqQR)}"><button onclick="data.community.qqQR='';renderCommunity()">×</button></div>`:'<small>💡 上传QQ群二维码</small>'}
+      </div>
+    </div>`;
+}
+
+function uploadCommunityImage(ev,field){
+  const f = ev.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    if(!data.community) data.community = {};
+    data.community[field] = r.result;
+    renderCommunity();
+  };
+  r.readAsDataURL(f);
+}
+
 
 function saveAll(){
   data.hero.subtitle = document.getElementById('ed-hero-subtitle').value;
