@@ -119,10 +119,10 @@ function renderVideos(){
     return;
   }
   
-  playVideo(0);
+  showVideoCover(0);
   
   list.innerHTML = videos.map((v,i)=>`
-    <div class="video-item ${i===0?'active':''}" onclick="playVideo(${i})">
+    <div class="video-item ${i===0?'active':''}" onclick="showVideoCover(${i})">
       <div class="video-thumb">
         <div class="play-icon">▶</div>
       </div>
@@ -134,6 +134,29 @@ function renderVideos(){
   `).join('');
 }
 
+// 显示视频封面（懒加载，不加载 iframe）
+function showVideoCover(i){
+  const v = data.videos[i];
+  if(!v) return;
+  const player = document.getElementById('video-player');
+  if(!v.bvid){
+    player.innerHTML = '<div class="video-empty">该视频未配置 BV 号</div>';
+    return;
+  }
+  player.innerHTML = `
+    <div class="video-cover" onclick="playVideo(${i})">
+      <div class="video-cover-mask">
+        <div class="video-play-btn">▶</div>
+        <div class="video-cover-title">${esc(v.title||'点击播放')}</div>
+        <div class="video-cover-hint">点击加载 B 站视频</div>
+      </div>
+    </div>`;
+  document.querySelectorAll('.video-item').forEach((el,idx)=>{
+    el.classList.toggle('active', i===idx);
+  });
+}
+
+// 真正加载视频 iframe（用户点击封面后才执行）
 function playVideo(i){
   const v = data.videos[i];
   if(!v) return;
@@ -143,17 +166,18 @@ function playVideo(i){
     return;
   }
   player.innerHTML = `
-    <iframe 
-      src="//player.bilibili.com/player.html?bvid=${esc(v.bvid)}&high_quality=1&danmaku=0" 
-      scrolling="no" 
-      frameborder="no" 
-      framespacing="0" 
+    <iframe
+      src="//player.bilibili.com/player.html?bvid=${esc(v.bvid)}&autoplay=1&high_quality=1"
+      scrolling="no"
+      frameborder="no"
+      framespacing="0"
       allowfullscreen="true">
     </iframe>`;
   document.querySelectorAll('.video-item').forEach((el,idx)=>{
     el.classList.toggle('active', i===idx);
   });
 }
+
 
 function renderCommunity(){
   const c = data.community || {};
