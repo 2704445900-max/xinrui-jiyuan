@@ -1,13 +1,11 @@
-const STORAGE_KEY = 'xinrui_jiyuan_data_v2';
-
 const defaultData = {
   hero: { subtitle:"N E W   E R A", title:"新锐纪元",
     declaration:"在第三纪元的晨曦里，一支年轻的队伍走向太阳。\n这是属于他们的故事，也是属于我们的纪元。" },
-  story: "（请进入管理后台 admin.html 编辑这段作者自述）\n\n大家好，我是和平莱茵兔……",
+  story: "作品内容暂未加载。",
   eras: [
-    { name:"第一纪元", title:"旧秩序的黄昏", desc:"（点击管理入口编辑此内容）" },
-    { name:"第二纪元", title:"动荡与转折", desc:"（点击管理入口编辑此内容）" },
-    { name:"第三纪元", title:"新锐崛起", desc:"（点击管理入口编辑此内容）" }
+    { name:"第一纪元", title:"旧秩序的黄昏", desc:"作品设定暂未加载。" },
+    { name:"第二纪元", title:"动荡与转折", desc:"作品设定暂未加载。" },
+    { name:"第三纪元", title:"新锐崛起", desc:"作品设定暂未加载。" }
   ],
   characters: [
     { name:"林荫清", role:"林小队 · 队长", faction:"main", age:"—", rank:"—", origin:"—",
@@ -25,26 +23,13 @@ const defaultData = {
     { name:"影碟机构", desc:"（反派组织描述待填写）" }
   ],
   videos: [
-    { bvid:"", title:"示例视频", desc:"在管理后台添加你的B站视频" }
-  ],
-  community: {
-    wechatQR: "",
-    qqQR: "",
-    qqNumber: "—",
-    wechatTitle: "支持众筹",
-    wechatDesc: "扫码支持新锐纪元企划",
-    qqTitle: "加入社群",
-    qqDesc: "一起探索新锐纪元的世界"
-  }
+    { bvid:"", title:"作品视频", desc:"" }
+  ]
 };
 
 
 let data = JSON.parse(JSON.stringify(defaultData));
 
-function loadData(){
-  const s = localStorage.getItem(STORAGE_KEY);
-  if(s){ try{ data = JSON.parse(s); }catch(e){} }
-}
 function esc(s){ return (s||'').toString().replace(/</g,'&lt;'); }
 
 function renderHero(){
@@ -114,7 +99,7 @@ function renderVideos(){
   const videos = data.videos || [];
   
   if(videos.length === 0){
-    player.innerHTML = '<div class="video-empty">暂无视频，请在管理后台添加</div>';
+    player.innerHTML = '<div class="video-empty">暂无作品视频</div>';
     list.innerHTML = '';
     return;
   }
@@ -177,31 +162,6 @@ function playVideo(i){
     el.classList.toggle('active', i===idx);
   });
 }
-
-
-function renderCommunity(){
-  const c = data.community || {};
-  
-  document.getElementById('comm-wechat-title').textContent = c.wechatTitle || '支持众筹';
-  document.getElementById('comm-wechat-desc').textContent = c.wechatDesc || '扫码支持新锐纪元企划';
-  const wechatQR = document.getElementById('comm-wechat-qr');
-  if(c.wechatQR){
-    wechatQR.innerHTML = `<img src="${esc(c.wechatQR)}" alt="微信收款码">`;
-  } else {
-    wechatQR.innerHTML = '<div class="qr-hint">请在管理后台上传微信收款码</div>';
-  }
-  
-  document.getElementById('comm-qq-title').textContent = c.qqTitle || '加入社群';
-  document.getElementById('comm-qq-desc').textContent = c.qqDesc || '一起探索新锐纪元的世界';
-  document.getElementById('comm-qq-num').textContent = c.qqNumber || '—';
-  const qqQR = document.getElementById('comm-qq-qr');
-  if(c.qqQR){
-    qqQR.innerHTML = `<img src="${esc(c.qqQR)}" alt="QQ群二维码">`;
-  } else {
-    qqQR.innerHTML = '<div class="qr-hint">请在管理后台上传QQ群二维码</div>';
-  }
-}
-
 
 let currentChar = null;
 
@@ -330,7 +290,6 @@ function setupFadeIn(){
 }
 
 async function bootstrap(){
-  // 1. 优先尝试从 data/content.json 读取（线上版本）
   try {
     const res = await fetch('data/content.json', {cache:'no-store'});
     if(res.ok){
@@ -339,13 +298,9 @@ async function bootstrap(){
         data = remote;
         console.log('已加载 content.json');
       }
-    } else {
-      // 没有 json 文件就用浏览器本地缓存
-      loadData();
     }
   } catch(e){
-    // 双击打开 html 时会进这里，回退到本地缓存
-    loadData();
+    console.warn('content.json 加载失败，使用内置作品数据。', e);
   }
 
   renderHero();
@@ -354,10 +309,8 @@ async function bootstrap(){
   renderCharacters();
   renderVillains();
   renderVideos();
-  renderCommunity();
   initParticles();
   setupFadeIn();
 }
 
 bootstrap();
-
